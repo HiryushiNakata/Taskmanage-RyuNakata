@@ -51,4 +51,37 @@ student_planner/
 ├── settings.php        Color theme picker (saved in the browser)
 ├── reopen.php          Sets a completed task back to Pending                  (UPDATE)
 └── delete.php          Deletes a task                                         (DELETE)
-How it worksA visitor must log in. require_login() at the top of each page redirects everyone else to login.php.After login, the user's id is stored in $_SESSION["user_id"].Every task query includes WHERE user_id = ?, so a student can never see, edit or delete another student's task.Form scripts (add_task.php, update.php, delete.php, edit.php) do their work and then redirect back, so refreshing the page does not resubmit the form.Security measures (good points for your defense)ThreatHow it is handledSQL injectionPrepared statements (mysqli_prepare) everywhereXSSOutput escaped with e() (htmlspecialchars)Stolen passwordspassword_hash() / password_verify() — plain passwords are never storedSession fixationsession_regenerate_id(true) after loginCSRF (forged forms)Secret token in every form, checked with csrf_check()Accessing others' dataEvery query filters by the logged-in user_idChanging data via linksUpdate, delete and logout use POST, not GETBypassing browser checksServer-side validation of subject, details and dateDatabase designusers (1) ──── (many) assignmentsassignments.user_id is a foreign key to users.user_id with ON DELETE CASCADEIdeas for future improvementsEmail or on-screen reminders for tasks due soonPagination for very long task listsPassword resetAI Tools UsedClaude / Gemini: Used as thought partners for vibe coding the PHP backend logic, designing the CSS dashboard, and structuring the MySQL relational database.Test AccountsTest User Email: student@test.comTest User Password: password123
+
+## How it works
+1. A visitor must **log in**. `require_login()` at the top of each page redirects everyone else to `login.php`.
+2. After login, the user's id is stored in `$_SESSION["user_id"]`.
+3. Every task query includes `WHERE user_id = ?`, so a student can never see, edit or delete another student's task.
+4. Form scripts (`add_task.php`, `update.php`, `delete.php`, `edit.php`) do their work and then **redirect** back, so refreshing the page does not resubmit the form.
+
+## Security measures (good points for your defense)
+| Threat | How it is handled |
+|---|---|
+| SQL injection | Prepared statements (`mysqli_prepare`) everywhere |
+| XSS | Output escaped with `e()` (`htmlspecialchars`) |
+| Stolen passwords | `password_hash()` / `password_verify()` — plain passwords are never stored |
+| Session fixation | `session_regenerate_id(true)` after login |
+| CSRF (forged forms) | Secret token in every form, checked with `csrf_check()` |
+| Accessing others' data | Every query filters by the logged-in `user_id` |
+| Changing data via links | Update, delete and logout use POST, not GET |
+| Bypassing browser checks | Server-side validation of subject, details and date |
+
+## Database design
+- `users` (1) ──── (many) `assignments`
+- `assignments.user_id` is a **foreign key** to `users.user_id` with `ON DELETE CASCADE`
+
+## Ideas for future improvements
+- Email or on-screen reminders for tasks due soon
+- Pagination for very long task lists
+- Password reset
+
+## AI Tools Used
+- **Claude / Gemini:** Used as thought partners for vibe coding the PHP backend logic, designing the CSS dashboard, and structuring the MySQL relational database.
+
+## Test Accounts
+- **Test User Email:** student@test.com
+- **Test User Password:** password123
